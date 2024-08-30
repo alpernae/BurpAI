@@ -2,7 +2,7 @@
 # Author: ALPEREN ERGEL (@alpernae)
 # v0.7 (UI Fix)
 
-from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, JTextField, JLabel, JTextPane
+from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, Box, JTextField, JLabel, JTextPane
 from java.awt import FlowLayout, Dimension, Color, BorderLayout, Font
 from javax.swing import BorderFactory, JOptionPane, SwingUtilities
 import os
@@ -67,7 +67,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         # Orta kısım: Mesajları gösterme
         self.messages_panel = JPanel()
         self.messages_panel.setLayout(BoxLayout(self.messages_panel, BoxLayout.Y_AXIS))
-        self.messages_panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))
+        self.messages_panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10))
 
         # Mesajları göstermek için bir kaydırma penceresi oluştur
         self.scroll_pane = JScrollPane(self.messages_panel)
@@ -118,13 +118,13 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         menu_bar = JMenuBar()
 
         # İstek ve Yanıtları Gönder menüsü
-        send_menu = JMenu("Send Requests")
-        menu_bar.add(send_menu)
+        Ask_to_AI = JMenu("Ask to AI")
+        menu_bar.add(Ask_to_AI)
 
         # İstek ve Yanıtları Gönder menü öğesi
-        send_request_item = JMenuItem("Send Request & Response to AI")
-        send_request_item.addActionListener(self.send_request_and_response)
-        send_menu.add(send_request_item)
+        send_ai_item = JMenuItem("Ask to AI")
+        send_ai_item.addActionListener(self.send_request_and_response)
+        Ask_to_AI.add(send_ai_item)
 
         # Menü çubuğunu paneldeki bir bileşene ekle (örneğin: üst panel)
         self.panel.add(menu_bar, BorderLayout.NORTH)
@@ -132,16 +132,13 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
     def createMenuItems(self, invocation):
         # Sağ tıklama menüsü öğelerini oluşturur
         menu = []
-        send_request_item = JMenuItem("Send Request & Response to AI")
-        send_request_item.addActionListener(
-            lambda event: self.send_request_and_response(invocation))  # Pass invocation correctly
-        menu.append(send_request_item)
+        send_ai_item = JMenuItem("Ask to AI", actionPerformed=lambda event: self.send_request_and_response(invocation))
+        menu.append(send_ai_item)
         return menu
-
 
     def getTabCaption(self):
         # Sekme ismi
-        return "AI Assistant"
+        return "BurpAI Assistant"
 
     def getUiComponent(self):
         # Paneli döndür
@@ -194,45 +191,37 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         try:
             message_area = JTextPane()
             message_area.setContentType("text/html")
-            # Temaya göre renk ayarları
+
+            # Theme-based colors
             panel_background = self.panel.getBackground()
+            text_color = "white" if panel_background == Color.DARK_GRAY else "black"
+            background_color = "#e6e6e6" if not is_user else "#d86633"
+            align = "right" if is_user else "left"
 
-            if panel_background == Color.DARK_GRAY:  # Koyu tema için renk ayarları
-                user_background_color = "#3c3d3e"
-                ai_background_color = "#3c3d3e"
-                text_color = "white"
-            else:  # Açık tema için renk ayarları
-                user_background_color = "#e6e6e6"
-                ai_background_color = "#e6e6e6"
-                text_color = "#000000"  # Siyah renk
-
-            # Her iki durumda da satır sonlarını ekle
-            message = message.replace("\n", "<br>")
-
-            # HTML formatında mesaj (border-radius eklendi)
-            if is_user:  # Kullanıcı mesajı için stil
-                html_message = """
-                <div style='padding: 5px 5px; background: {}; border-radius: 35px;'>  
-                <span style='color: {}; white-space: pre-wrap; overflow-wrap: break-word; display: inline-block;'>{}</span>
-                </div>""".format(user_background_color, text_color, message)
-                message_area.setFont(Font("Monospaced", Font.PLAIN, 12))  # Kullanıcı mesajı için font boyutu
-            else:  # AI mesajı için stil
-                html_message = """
-                <div style='padding: 5px 5px; background: {}; border-radius: 10px;'>  
-                <span style='color: {}; white-space: pre-wrap; overflow-wrap: break-word; display: inline-block;'>{}</span>
-                </div>""".format(ai_background_color, text_color, message)
-                message_area.setFont(Font("Monospaced", Font.PLAIN, 12))  # AI mesajı için font boyutu
+            # Wrap the message in a simple HTML structure
+            html_message = """
+            <div style="background: {}; padding: 5px; border-radius: 10px; text-align: {}; max-width: 300px; word-wrap: break-word;">
+                <span style="color: {}; overflow-wrap: break-word; word-break: break-all;">{}</span>
+            </div>
+            """.format(background_color, align, text_color, message.replace("\n", "<br>"))
 
             message_area.setText(html_message)
             message_area.setEditable(False)
             message_area.setOpaque(False)
-            message_area.setMaximumSize(Dimension(self.scroll_pane.getWidth() - 0, Integer.MAX_VALUE)) 
+            message_area.setMaximumSize(Dimension(300, Integer.MAX_VALUE))  # Set max width for wrapping
 
-            # Mesaj panelini oluştur ve ekle (FlowLayout kullanarak)
-            message_panel = JPanel(FlowLayout(FlowLayout.RIGHT if is_user else FlowLayout.LEFT))
-            message_panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))  # Varsayılan border
+            # Message panel for alignment
+            message_panel = JPanel()
+            message_panel.setLayout(BoxLayout(message_panel, BoxLayout.X_AXIS))
+            message_panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))
             message_panel.setOpaque(False)
-            message_panel.add(message_area)
+
+            if is_user:
+                message_panel.add(Box.createHorizontalGlue())  # Push to the right
+                message_panel.add(message_area)
+            else:
+                message_panel.add(message_area)
+                message_panel.add(Box.createHorizontalGlue())  # Push to the left
 
             self.messages_panel.add(message_panel)
             self.messages_panel.revalidate()
@@ -242,8 +231,10 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
             # Scroll to the bottom
             SwingUtilities.invokeLater(lambda: self.scroll_pane.getVerticalScrollBar().setValue(self.scroll_pane.getVerticalScrollBar().getMaximum()))
+
         except Exception as e:
             print("Error adding message to chat: {}".format(e))
+
 
     def load_api_key(self):
         # API Key'i dosyadan oku
@@ -264,7 +255,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             except Exception as e:
                 print("Failed to start server: {}".format(e))
 
-    def send_request_and_response(self, invocation):
+    def send_request_and_response(self, invocation=None):  # invocation parametresini ekleyin
         try:
             # Show message box with "Hello World"
             print("send_request_and_response called")  # Debugging line
