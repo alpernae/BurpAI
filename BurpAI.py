@@ -2,7 +2,7 @@
 # Author: ALPEREN ERGEL (@alpernae)
 # v0.7 (UI Fix)
 
-from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, JTextField, JLabel, JTextPane
+from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, Box, JTextField, JLabel, JTextPane
 from java.awt import FlowLayout, Dimension, Color, BorderLayout, Font
 from javax.swing import BorderFactory, JOptionPane, SwingUtilities
 import os
@@ -191,45 +191,37 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         try:
             message_area = JTextPane()
             message_area.setContentType("text/html")
-            # Temaya göre renk ayarları
+
+            # Theme-based colors
             panel_background = self.panel.getBackground()
+            text_color = "white" if panel_background == Color.DARK_GRAY else "black"
+            background_color = "#e6e6e6" if not is_user else "#d86633"
+            align = "right" if is_user else "left"
 
-            if panel_background == Color.DARK_GRAY:  # Koyu tema için renk ayarları
-                user_background_color = "#3c3d3e"
-                ai_background_color = "#3c3d3e"
-                text_color = "white"
-            else:  # Açık tema için renk ayarları
-                user_background_color = "#e6e6e6"
-                ai_background_color = "#e6e6e6"
-                text_color = "#000000"  # Siyah renk
-
-            # Her iki durumda da satır sonlarını ekle
-            message = message.replace("\n", "<br>")
-
-            # HTML formatında mesaj (border-radius ve word-wrap eklendi)
-            if is_user:  # Kullanıcı mesajı için stil
-                html_message = """
-                <p style='padding: 5px 5px; background: {}; border-radius: 35px; word-wrap: break-word;'>  
-                <span style='color: {}; white-space: pre-wrap; overflow-wrap: break-word; display: inline-block;'>{}</span>
-                </p>""".format(user_background_color, text_color, message)
-                message_area.setFont(Font("Monospaced", Font.PLAIN, 12))  # Kullanıcı mesajı için font boyutu
-            else:  # AI mesajı için stil
-                html_message = """
-                <p style='padding: 5px 5px; background: {}; border-radius: 10px; word-wrap: break-word;'>  
-                <span style='color: {}; white-space: pre-wrap; overflow-wrap: break-word; display: inline-block;'>{}</span>
-                </p>""".format(ai_background_color, text_color, message)
-                message_area.setFont(Font("Monospaced", Font.PLAIN, 12))  # AI mesajı için font boyutu
+            # Wrap the message in a simple HTML structure
+            html_message = """
+            <div style="background: {}; padding: 5px; border-radius: 10px; text-align: {}; max-width: 300px; word-wrap: break-word;">
+                <span style="color: {}; overflow-wrap: break-word; word-break: break-all;">{}</span>
+            </div>
+            """.format(background_color, align, text_color, message.replace("\n", "<br>"))
 
             message_area.setText(html_message)
             message_area.setEditable(False)
             message_area.setOpaque(False)
-            # message_area.setMaximumSize(Dimension(self.scroll_pane.getWidth() - 0, Integer.MAX_VALUE))  # Bu satırı kaldırın
+            message_area.setMaximumSize(Dimension(300, Integer.MAX_VALUE))  # Set max width for wrapping
 
-            # Mesaj panelini oluştur ve ekle (BorderLayout kullanarak)
-            message_panel = JPanel(BorderLayout())  # FlowLayout yerine BorderLayout kullanın
-            message_panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))  # Varsayılan border
+            # Message panel for alignment
+            message_panel = JPanel()
+            message_panel.setLayout(BoxLayout(message_panel, BoxLayout.X_AXIS))
+            message_panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5))
             message_panel.setOpaque(False)
-            message_panel.add(message_area, BorderLayout.CENTER)  # JTextPane'ni BorderLayout.CENTER'a ekleyin
+
+            if is_user:
+                message_panel.add(Box.createHorizontalGlue())  # Push to the right
+                message_panel.add(message_area)
+            else:
+                message_panel.add(message_area)
+                message_panel.add(Box.createHorizontalGlue())  # Push to the left
 
             self.messages_panel.add(message_panel)
             self.messages_panel.revalidate()
@@ -239,8 +231,10 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
             # Scroll to the bottom
             SwingUtilities.invokeLater(lambda: self.scroll_pane.getVerticalScrollBar().setValue(self.scroll_pane.getVerticalScrollBar().getMaximum()))
+
         except Exception as e:
             print("Error adding message to chat: {}".format(e))
+
 
     def load_api_key(self):
         # API Key'i dosyadan oku
