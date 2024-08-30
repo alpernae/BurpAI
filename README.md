@@ -2,6 +2,7 @@
 
 **BurpAIExtension**, Burp Suite için geliştirilen bir yapay zeka destekli güvenlik test uzantısıdır. Bu uzantı, AI modelini kullanarak güvenlik testlerinizi geliştirmek ve otomatikleştirmek için öneriler sağlar. Özellikle manuel güvenlik testlerinde AI destekli analizler elde etmek isteyen siber güvenlik uzmanları ve bug bounty avcıları için tasarlanmıştır.
 
+<img src="https://github.com/alpernae/BurpAI/blob/main/assets/burpai.png" />
 ## İçindekiler
 
 - [Özellikler](#özellikler)
