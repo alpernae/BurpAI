@@ -2,15 +2,15 @@
 # Author: ALPEREN ERGEL (@alpernae)
 # v0.7 (UI Fix)
 
-from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, JTextField, JLabel, JTextPane, JComboBox, Box
-from java.awt import FlowLayout, Dimension, Color, BorderLayout, Font
-from javax.swing import BorderFactory, JOptionPane, SwingUtilities
 import os
 import json
 import urllib2
 import subprocess
-from burp import IBurpExtender, ITab, IContextMenuFactory
 from java.lang import Integer
+from burp import IBurpExtender, ITab, IContextMenuFactory
+from javax.swing import BorderFactory, JOptionPane, SwingUtilities
+from java.awt import FlowLayout, Dimension, Color, BorderLayout, Font
+from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, JTextField, JLabel, JTextPane, JComboBox, Box
 
 class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
@@ -22,8 +22,6 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
         # Seçenekler için örnek veri
         self.options = ["Option 1", "Option 2", "Option 3"]
-
-        print("Author: ALPEREN ERGEL (@alpernae)")
 
     def registerExtenderCallbacks(self, callbacks):
         self.callbacks = callbacks
@@ -53,14 +51,21 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         top_panel = JPanel(FlowLayout(FlowLayout.CENTER, 10, 10))
 
         # API Key Label ve Input Panel
-        api_key_panel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 0))
-        api_key_label = JLabel("Enter API Key")
-        api_key_label.setPreferredSize(Dimension(150, 30))
+        api_key_panel = JPanel()  # Use JPanel without a specific layout
+        api_key_panel.setLayout(BoxLayout(api_key_panel, BoxLayout.X_AXIS))  # Use BoxLayout for horizontal arrangement
+
+        # API Key Label
+        api_key_label = JLabel("API KEY")
+        api_key_label.setPreferredSize(Dimension(70, 40))
+        api_key_label.setFont(Font("Arial",Font.BOLD, 14))  # Set font size and style
 
         # API Key Input
-        self.api_key_input = JTextField("", 20)
-        self.api_key_input.setPreferredSize(Dimension(100, 30))
+        self.api_key_input = JTextField("", 27)
+        self.api_key_input.setPreferredSize(Dimension(100, 25))
 
+        # Add components to the panel without any gaps
+        api_key_panel.add(api_key_label)
+        api_key_panel.add(self.api_key_input)
         # Panelde boşluk ayarla
         api_key_panel.add(api_key_label)
         api_key_panel.add(self.api_key_input)
@@ -103,19 +108,21 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         bottom_panel = JPanel(FlowLayout(FlowLayout.CENTER, 10, 10))
         
         # Prompt Input Panel
-        prompt_input_panel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 0))
+        prompt_input_panel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 0))
         
         # Create JComboBox with example options
         self.combo_box = JComboBox(["Option 1", "Option 2", "Option 3"])
         self.combo_box.setPreferredSize(Dimension(130, 30))
         
         # Plugin Label
-        plugin_label = JLabel("Plugin")
+        plugin_label = JLabel("PLUGIN")
         plugin_label.setPreferredSize(Dimension(60, 30))
+        plugin_label.setFont(Font("Arial",Font.BOLD, 14))  # Set font size and style
         
         # Prompt Input
         self.prompt_input = JTextField("", 20)
         self.prompt_input.setPreferredSize(Dimension(130, 30))
+        
         
         # Add components to the prompt input panel
         prompt_input_panel.add(plugin_label)  # Add JLabel first
@@ -195,11 +202,13 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             self.stop_server()
             self.server_button.setText("Start Server")
             self.server_button.setBackground(Color.decode("#d86633"))  # Background color to default
+            self.server_button.setForeground(Color.WHITE)  # Set text color to white
         else:
             self.start_server()  # Server_running'i değiştirmeden önce start_server'ı çağırın
             if self.server_running:  # Eğer sunucu başarıyla başlatıldıysa
                 self.server_button.setText("Stop Server")
                 self.server_button.setBackground(Color.GREEN)  # Background color to green
+                self.server_button.setForeground(Color.BLACK)
 
     def start_server(self):
         # Sunucu başlatma işlemi
