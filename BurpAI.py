@@ -2,7 +2,7 @@
 # Author: ALPEREN ERGEL (@alpernae)
 # v0.7 (UI Fix)
 
-from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, Box, JTextField, JLabel, JTextPane
+from javax.swing import JPanel, JScrollPane, JButton, JMenu, JMenuBar, JMenuItem, BoxLayout, JTextField, JLabel, JTextPane, JComboBox, Box
 from java.awt import FlowLayout, Dimension, Color, BorderLayout, Font
 from javax.swing import BorderFactory, JOptionPane, SwingUtilities
 import os
@@ -15,16 +15,32 @@ from java.lang import Integer
 class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
     def __init__(self):
+        # Init api key
         self.api_key_file = os.path.expanduser("~/.api_key")
         self.server_running = False
         self.server_process = None
+
+        # Seçenekler için örnek veri
+        self.options = ["Option 1", "Option 2", "Option 3"]
 
         print("Author: ALPEREN ERGEL (@alpernae)")
 
     def registerExtenderCallbacks(self, callbacks):
         self.callbacks = callbacks
         self.helpers = callbacks.getHelpers()
-        callbacks.setExtensionName("AI Assistant")
+        callbacks.setExtensionName("BurpAI")
+
+        # Add additional metadata
+        extension_info = {
+            "Author": "ALPEREN ERGEL (@alpernae)",
+            "Version": "v0.7",
+            "Description": "An AI Assistant for Burp Suite to help users create",
+            "Last Update": "08/30/2024"
+        }
+
+        # Log the metadata information
+        for key, value in extension_info.items():
+            callbacks.printOutput("{}: {}".format(key, value))
 
         # Paneli oluştur
         self.panel = JPanel(BorderLayout())
@@ -32,9 +48,6 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
         # Menü oluştur
         self.create_menu()
-
-        # Sunucu scriptini başlat
-        self.start_server()
 
         # Üst kısım: API Key girişi
         top_panel = JPanel(FlowLayout(FlowLayout.CENTER, 10, 10))
@@ -60,9 +73,18 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         add_key_button.setOpaque(True)
         add_key_button.setBorderPainted(False)
 
+        # Start/Stop Server Button
+        self.server_button = JButton("Start Server", actionPerformed=self.toggle_server)
+        self.server_button.setPreferredSize(Dimension(130, 30))
+        self.server_button.setBackground(Color.decode("#d86633"))
+        self.server_button.setForeground(Color.WHITE)
+        self.server_button.setOpaque(True)
+        self.server_button.setBorderPainted(False)
+
         # Bileşenleri top_panel'e ekle
         top_panel.add(api_key_panel)
         top_panel.add(add_key_button)
+        top_panel.add(self.server_button)  # Add server button
 
         # Orta kısım: Mesajları gösterme
         self.messages_panel = JPanel()
@@ -79,15 +101,27 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
 
         # Alt kısım: Prompt girişi ve gönderim
         bottom_panel = JPanel(FlowLayout(FlowLayout.CENTER, 10, 10))
-
+        
         # Prompt Input Panel
         prompt_input_panel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 0))
-
+        
+        # Create JComboBox with example options
+        self.combo_box = JComboBox(["Option 1", "Option 2", "Option 3"])
+        self.combo_box.setPreferredSize(Dimension(130, 30))
+        
+        # Plugin Label
+        plugin_label = JLabel("Plugin")
+        plugin_label.setPreferredSize(Dimension(60, 30))
+        
         # Prompt Input
         self.prompt_input = JTextField("", 20)
         self.prompt_input.setPreferredSize(Dimension(130, 30))
-        prompt_input_panel.add(self.prompt_input)
-
+        
+        # Add components to the prompt input panel
+        prompt_input_panel.add(plugin_label)  # Add JLabel first
+        prompt_input_panel.add(self.combo_box)  # Add JComboBox next
+        prompt_input_panel.add(self.prompt_input)  # Add JTextField last
+        
         # Send Prompt Button
         send_prompt_button = JButton("Send Prompt", actionPerformed=self.send_prompt)
         send_prompt_button.setPreferredSize(Dimension(130, 30))
@@ -95,14 +129,15 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         send_prompt_button.setForeground(Color.WHITE)
         send_prompt_button.setOpaque(True)
         send_prompt_button.setBorderPainted(False)
-
-        # Bileşenleri bottom_panel'e ekle
+        
+        # Add components to bottom panel
         bottom_panel.add(prompt_input_panel)
         bottom_panel.add(send_prompt_button)
-
-        # Panelleri ana panele ekle
+        
+        # Add panels to the main panel
         self.panel.add(top_panel, BorderLayout.NORTH)
         self.panel.add(bottom_panel, BorderLayout.SOUTH)
+
 
         # API Key'i dosyadan oku
         self.load_api_key()
@@ -154,6 +189,49 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         else:
             JOptionPane.showMessageDialog(None, "API Key cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE)
 
+    def toggle_server(self, event):
+        # Sunucuyu başlat/durdur
+        if self.server_running:
+            self.stop_server()
+            self.server_button.setText("Start Server")
+            self.server_button.setBackground(Color.decode("#d86633"))  # Background color to default
+        else:
+            self.start_server()  # Server_running'i değiştirmeden önce start_server'ı çağırın
+            if self.server_running:  # Eğer sunucu başarıyla başlatıldıysa
+                self.server_button.setText("Stop Server")
+                self.server_button.setBackground(Color.GREEN)  # Background color to green
+
+    def start_server(self):
+        # Sunucu başlatma işlemi
+        if not self.server_running:
+            try:
+                # Sunucu scriptini başlat
+                self.server_process = subprocess.Popen(["python", "server/app.py"],
+                                                      stdout=subprocess.PIPE,
+                                                      stderr=subprocess.PIPE)
+                self.server_running = True
+                print("Server Started!")
+            except Exception as e:
+                print("Failed to start server: {}".format(e))
+
+    def stop_server(self):
+        # Sunucuyu durdurma işlemi
+        if self.server_running and self.server_process:
+            try:
+                self.server_process.kill()  # terminate() yerine kill() kullanın
+                self.server_process.kill()
+                self.server_running = False
+                print("Server Stopped!")
+            except Exception as e:
+                print("Failed to stop server: {}".format(e))
+    
+    def handle_combo_box_selection(self, event):
+        selected_option = self.combo_box.getSelectedItem()
+        print("Selected Option:", selected_option)
+    
+        # In the registerExtenderCallbacks method or where you define the combo box:
+        self.combo_box.addActionListener(self.handle_combo_box_selection)
+
     def send_prompt(self, event):
         prompt = self.prompt_input.getText()
         self.prompt_input.setText("")  # Clear prompt input
@@ -201,7 +279,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             # Wrap the message in a simple HTML structure
             html_message = """
             <div style="background: {}; padding: 5px; border-radius: 10px; text-align: {}; max-width: 300px; word-wrap: break-word;">
-                <span style="color: {}; overflow-wrap: break-word; word-break: break-all;">{}</span>
+            <span style="color: {}; overflow-wrap: break-word; word-break: break-all;">{}</span>
             </div>
             """.format(background_color, align, text_color, message.replace("\n", "<br>"))
 
@@ -235,25 +313,12 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         except Exception as e:
             print("Error adding message to chat: {}".format(e))
 
-
     def load_api_key(self):
         # API Key'i dosyadan oku
         if os.path.exists(self.api_key_file):
             with open(self.api_key_file, 'r') as f:
                 api_key = f.read().strip()
                 self.api_key_input.setText(api_key)
-
-    def start_server(self):
-        # Sunucu başlatma işlemi
-        if not self.server_running:
-            try:
-                # Sunucu scriptini başlat
-                self.server_process = subprocess.Popen(["python", "server.py"],
-                                                      stdout=subprocess.PIPE,
-                                                      stderr=subprocess.PIPE)
-                self.server_running = True
-            except Exception as e:
-                print("Failed to start server: {}".format(e))
 
     def send_request_and_response(self, invocation=None):  # invocation parametresini ekleyin
         try:
