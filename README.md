@@ -1,11 +1,7 @@
 
 # BurpAI: AI-Powered Web Security Assistant
 
-BurpAI is a Burp Suite extension that empowers you with the capabilities of artificial intelligence to enhance your web security testing workflow. This extension features an interactive chat interface within Burp Suite, allowing you to engage with an AI model for advanced analysis and assistance.
-
-Users can interact with the AI model by right-clicking on any request or response within Burp Suite and selecting the "Ask AI" option. This functionality enables you to query the AI about the selected request or response, or both, to gain insights into potential vulnerabilities and recommended tests. The AI can provide information on vulnerabilities, suggest testing strategies, and share relevant payloads. Additionally, if a vulnerability has already been identified, the AI can assist in generating a Proof of Concept (PoC) to demonstrate the issue.
-
-This integration streamlines the process of identifying and addressing security issues by leveraging AI-driven insights directly within your Burp Suite environment.
+BurpAI is a powerful Burp Suite extension that leverages artificial intelligence to elevate your web security testing workflow. Featuring an interactive chat interface, BurpAI allows you to engage with an AI model for advanced analysis and tailored assistance directly within Burp Suite. Additionally, BurpAI supports a flexible plugin system, enabling users to choose and run specialized plugins, further enhancing its capabilities to meet your unique testing needs.
 
 ![Logo](https://github.com/alpernae/BurpAI/blob/main/assets/BURPAI_LOGO.png)
 
