@@ -68,7 +68,7 @@ This integration streamlines the process of identifying and addressing security 
       - Open your web browser and go to [https://aistudio.google.com/](https://aistudio.google.com/). Make sure you are logged into your Google account.
 
    **Navigate to API Keys:**
-       - In the left-hand menu, click on "GET API Key". 
+     - In the left-hand menu, click on **GET API Key**. 
 
    **Create a New API Key:**
       - Click on the "CREATE API KEY" button.
