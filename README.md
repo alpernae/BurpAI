@@ -24,21 +24,13 @@ This integration streamlines the process of identifying and addressing security 
 ## FAQ
 
 <details>
-  <summary>Question 1</summary>
+  <summary>Can I use BurpAI with the Pro version of Burp Suite?</summary>
   
-  **Answer 1**  
-  This is the detailed answer to question 1.
+  Yes, **BurpAI** is fully compatible with both the Community and Pro versions of Burp Suite. You can take advantage of all the features of BurpAI regardless of which version of Burp Suite you are using.
 </details>
 
-<details>
-  <summary>Question 2</summary>
-  
-  **Answer 2**  
-  This is the detailed answer to question 2.
-</details>
 
 ## Installation
-
 
 **Prerequisites:**
 
@@ -71,8 +63,8 @@ This integration streamlines the process of identifying and addressing security 
      - In the left-hand menu, click on **GET API Key**. 
 
    **Create a New API Key:**
-      - Click on the "CREATE API KEY" button.
-      - Then click " Create API key in new project".
+      - Click on the **CREATE API KEY** button.
+      - Then click **Create API key in new project**.
 
    **Copy Your API Key:**
       - Your newly created API key will be displayed on the screen. **Copy this key** and save it for future use in BurpAI.
@@ -92,11 +84,9 @@ This integration streamlines the process of identifying and addressing security 
    - Click the "Activate" button to start interacting with the AI. To stop, simply click the "Deactivate" button.
    - Begin your interaction with the AI through the chat interface. Send prompts, request analysis, and generate payloads to enhance your web security testing.
 
-
 ## Feedback
 
 If you have any feedback, please reach out to us at alperene@aof.anadolu.edu.tr
-
 
 ## License
 
