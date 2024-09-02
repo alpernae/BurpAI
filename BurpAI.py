@@ -9,26 +9,22 @@ import subprocess
 from java.lang import Integer
 from java.util import ArrayList
 from burp import IBurpExtender, ITab, IContextMenuFactory
-from javax.swing import BorderFactory, JOptionPane, SwingUtilities
+from javax.swing import BorderFactory, JOptionPane, SwingUtilities, UIManager
 from java.awt import FlowLayout, Dimension, Color, BorderLayout, Font
 from javax.swing import (
     JPanel,
     JScrollPane,
     JButton,
-    JMenu,
-    JMenuBar,
     JMenuItem,
     BoxLayout,
     JTextField,
     JLabel,
     JTextPane,
     Box,
-    SwingWorker,
 )
 
 
 class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
-
     def __init__(self):
         self.api_key_file = os.path.expanduser("~/.api_key")
         self.server_running = False
@@ -203,12 +199,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
                 None, "API Key cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE
             )
 
-    def extract_command_output(self, response_text):
-        # Basic placeholder implementation
-        return response_text
-
-        # SEND PROMPT TO AI ___________________________________________________________________________________________
-
+    # SEND PROMPT TO AI
     def send_prompt(self, event):
         prompt = self.prompt_input.getText()
         self.prompt_input.setText("")
@@ -334,29 +325,32 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             error_message = "Unexpected error: {}".format(e)
             self.add_message_to_chat(error_message, is_user=False)
 
-        # ADD MESSAGE TO AI CHAT
+    # Burp Suite'in tema ayarlarını al
+    def currentTheme(self):
+        # Attempt to get system theme as a workaround
+        look_and_feel = UIManager.getLookAndFeel().getName()
+        is_dark_theme = "dark" in look_and_feel.lower()  # Check for "dark" in the name
+        print("Current Theme (System): {}".format(look_and_feel))
+        return is_dark_theme
 
+    # ADD MESSAGE TO AI CHAT
     def add_message_to_chat(self, message, is_user):
         try:
             message_area = JTextPane()
             message_area.setContentType("text/html")
 
-            panel_background = self.panel.getBackground()
-            is_dark_theme = panel_background == Color.DARK_GRAY
+            # Get the current UI theme
+            is_dark_theme = self.currentTheme()
 
-            if is_dark_theme:
-                background_color = "black"
-                text_color = "white"
-            else:
-                background_color = "#eeeeee"
-                text_color = "black"
+            # Set colors based on the theme (consistent for user and AI)
+            background_color = "yellow" if is_dark_theme else "#eeeeee" 
+            text_color = "white" if is_dark_theme else "black"
+            align = "center" if is_user else "left"  # Align user messages to the center 
 
-            align = "center" if is_user else "left"
-
+            # Create the HTML message with the dynamic colors
             html_message = """
-            <div style="background: {}; padding: 5px; border-radius: 10px; text-align: {}; max-width: 300px; word-wrap: break-word;">
-            <span style="color: {}; overflow-wrap: break-word; word-break: break-all;">{}</span>
-            </div>
+            <div style='background: {}; padding: 5px; border-radius: 10px; text-align: {}; max-width: 300px; word-wrap: break-word;'>
+            <span style='color: {}; overflow-wrap: break-word; word-break: break-all;'>{}</span></div>
             """.format(
                 background_color,
                 align,
@@ -375,11 +369,11 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             message_panel.setOpaque(False)
 
             if is_user:
-                message_panel.add(Box.createHorizontalGlue())
+                message_panel.add(Box.createHorizontalGlue())  # Push user message to the right
                 message_panel.add(message_area)
             else:
                 message_panel.add(message_area)
-                message_panel.add(Box.createHorizontalGlue())
+                message_panel.add(Box.createHorizontalGlue())  # Push AI message to the left
 
             self.messages_panel.add(message_panel)
             self.messages_panel.revalidate()
@@ -394,4 +388,4 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             )
 
         except Exception as e:
-            print("Hata: {}".format(e))
+            print("Error: {}".format(e))
