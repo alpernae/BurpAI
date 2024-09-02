@@ -10,13 +10,15 @@ BurpAI is a powerful Burp Suite extension that leverages artificial intelligence
 
 - **Interactive Chat**: Engage in a chat-like conversation with an AI model within Burp Suite to gain insights, generate payloads, and receive security advice.
 
-- **Plugin Selection**: Choose from a variety of plugins or AI models to tailor your security testing to specific needs. Analyze different web application vulnerabilities, such as XSS, SQL injection, and more.
+- **Plugin Selection**: Choose from a variety of plugins or AI models to tailor your security testing to specific needs. Analyze different web application vulnerabilities, such as XSS, SQL injection, and more. (COMING SOON!)
 
 - **Request/Response Analysis**: Analyze specific web requests and responses to identify potential security issues. The AI model can pinpoint common vulnerabilities, suggest potential exploits, and provide insights into the application's security posture.
 
 - **Payload Generation**: Ask the AI model to generate payloads for various vulnerabilities, including XSS, SQL injection, and command injection. Automate the testing process and increase efficiency.
 
 - **Security Advice**: Receive security advice and recommendations based on the analysis of web requests, responses, and the application's overall security posture. Identify and mitigate potential risks.
+
+
 ## FAQ
 
 <details>
@@ -24,6 +26,46 @@ BurpAI is a powerful Burp Suite extension that leverages artificial intelligence
   
   Yes, **BurpAI** is fully compatible with both the Community and Pro versions of Burp Suite. You can take advantage of all the features of BurpAI regardless of which version of Burp Suite you are using.
 </details>
+
+## BurpAI Roadmap
+
+### Planned Features
+
+#### Plugin System
+- **Description**: Introduce a plugin system to extend BurpAI’s functionality with custom plugins.
+- **Features**:
+  - **Automated Sublisting**: Plugins can automate the process of subdomain enumeration.
+  - **WAF Detection**: Plugins to identify and handle Web Application Firewalls (WAFs).
+  - **Wordlist Generation**: Create and customize wordlists tailored to specific targets.
+  - **Other Automation**: Additional plugins to automate various tasks and processes relevant to bug bounty hunting and pentesting.
+
+#### Creating Proof-of-Concepts (PoCs) for Specific Vulnerabilities
+- **Description**: Develop functionality to generate proof-of-concept (PoC) exploits for common vulnerabilities via AI.
+- **Vulnerabilities**:
+  - **Cross-Site Request Forgery (CSRF)**: Automate the creation of CSRF PoCs.
+  - **Cross-Origin Resource Sharing (CORS)**: Generate PoCs to test CORS misconfigurations.
+  - **SQL Injection**: Create SQL injection PoCs to demonstrate exploitability.
+  - **Other Vulnerabilities**: Extend to additional vulnerabilities based on user needs and feedback.
+
+#### Optimization
+- **Description**: Focus on optimizing performance and usability of BurpAI.
+- **Goals**:
+  - **Improve Speed**: Enhance the responsiveness and speed of the AI and plugin features.
+  - **Reduce Resource Usage**: Optimize resource consumption to ensure efficient operation.
+  - **Enhance User Experience**: Refine the user interface and experience based on feedback.
+  - **Bug Fixes and Stability**: Address and resolve any issues to improve overall stability.
+
+#### Implementation Plan
+1. **Design Plugin Architecture**: Define the framework for plugin development and integration.
+2. **Develop Core Plugins**: Start with essential plugins for sublisting, WAF detection, and wordlist generation.
+3. **Integrate PoC Generation**: Implement AI-driven PoC generation for selected vulnerabilities.
+4. **Optimize Performance**: Focus on performance improvements and resource optimization.
+5. **Test and Refine**: Thoroughly test new features and refine based on feedback.
+6. **Release and Documentation**: Release updates and provide comprehensive documentation for new features.
+
+#### Feedback and Iteration
+- Collect user feedback on new features.
+- Continuously improve and expand functionality based on real-world usage and requirements.
 
 
 ## Installation
