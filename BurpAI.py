@@ -6,6 +6,9 @@ import os
 import json
 import urllib2
 import subprocess
+import threading # Import the threading module
+import re # Import the re module for regular expressions
+
 from java.lang import Integer
 from java.util import ArrayList
 from burp import IBurpExtender, ITab, IContextMenuFactory
@@ -38,9 +41,8 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         # Add additional metadata
         extension_info = {
             "Author": "ALPEREN ERGEL (@alpernae)",
-            "Version": "v0.7",
-            "Description": "An AI Assistant for Burp Suite",
-            "Last Update": "08/30/2024",
+            "Version": "v0.8",
+            "Description": "BurpAI is a powerful Burp Suite extension that leverages artificial intelligence to elevate your web security testing workflow.",
         }
 
         for key, value in extension_info.items():
@@ -125,7 +127,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         self.callbacks.registerContextMenuFactory(self)
 
     def getTabCaption(self):
-        return "BurpAI Assistant"
+        return "BurpAI"
 
     def createMenuItems(self, invocation):
         self.context = invocation
@@ -199,13 +201,17 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
                 None, "API Key cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE
             )
 
-    # SEND PROMPT TO AI
+    # SEND PROMPT TO AI (in a separate thread)
     def send_prompt(self, event):
         prompt = self.prompt_input.getText()
         self.prompt_input.setText("")
-
         self.add_message_to_chat(prompt, is_user=True)
 
+        # Create and start a new thread for the AI communication
+        threading.Thread(target=self.ai_request, args=(prompt,)).start()
+
+    # Function to handle the AI request
+    def ai_request(self, prompt):
         try:
             url = "http://127.0.0.1:5000/generate"
             data = json.dumps({"prompt": prompt}, ensure_ascii=False).encode("utf-8")
@@ -218,23 +224,29 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             response_json = json.loads(content)
             response_text = response_json.get("response", "No response content")
 
-            # Komut satırı çıktısını ayrıştır
-            command_output = self.extract_command_output(response_text)
-            if command_output:
-                self.add_message_to_chat(
-                    "```\n" + command_output + "\n```", is_user=False
-                )
-            else:
-                self.add_message_to_chat(response_text, is_user=False)
-        except urllib2.URLError as e:
-            error_message = "Network Error: {}".format(e.reason)
-            self.add_message_to_chat(error_message, is_user=False)
-        except ValueError:
-            error_message = "Error decoding JSON response from server."
-            self.add_message_to_chat(error_message, is_user=False)
+            # Use SwingUtilities.invokeLater to update the UI from the thread
+            SwingUtilities.invokeLater(lambda: self.process_ai_response(response_text))
+
         except Exception as e:
-            error_message = "Unexpected error: {}".format(e)
-            self.add_message_to_chat(error_message, is_user=False)
+            error_message = "Error: {}".format(e)
+            SwingUtilities.invokeLater(lambda: self.add_message_to_chat(error_message, is_user=False))
+
+    # Function to extract command output from text
+    def extract_command_output(self, text):
+        # Example using regular expressions to find text within ``` blocks 
+        match = re.search(r"```\n(.*?)\n```", text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        else:
+            return None  # Or return an appropriate value if no command output is found
+
+    # Process the AI response and add it to the chat
+    def process_ai_response(self, response_text):
+        command_output = self.extract_command_output(response_text)
+        if command_output:
+            self.add_message_to_chat("```\n" + command_output + "\n```", is_user=False)
+        else:
+            self.add_message_to_chat(response_text, is_user=False)
 
     def AskTheAi(self, event):
         # Get the selected message
@@ -295,42 +307,15 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         initial_prompt = """
         """
 
-        # Send the prompt to the AI and display the response
-        try:
-            url = "http://127.0.0.1:5000/generate"
-            data = json.dumps(
-                {"prompt": initial_prompt + request_prompt + response_prompt},
-                ensure_ascii=False,
-            ).encode(
-                "utf-8"
-            )  # Combine prompts
-            headers = {"Content-Type": "application/json"}
-
-            request = urllib2.Request(url, data, headers)
-            response = urllib2.urlopen(request)
-            content = response.read().decode("utf-8")
-
-            response_json = json.loads(content)
-            ai_response = response_json.get("response", "No response from AI.")
-
-            self.add_message_to_chat(ai_response, is_user=False)
-
-        except urllib2.URLError as e:
-            error_message = "Network Error: {}".format(e.reason)
-            self.add_message_to_chat(error_message, is_user=False)
-        except json.JSONDecodeError:
-            error_message = "Error decoding JSON response from server."
-            self.add_message_to_chat(error_message, is_user=False)
-        except Exception as e:
-            error_message = "Unexpected error: {}".format(e)
-            self.add_message_to_chat(error_message, is_user=False)
+        # Create and start a new thread for the AI communication
+        threading.Thread(target=self.ai_request, args=(initial_prompt + request_prompt + response_prompt,)).start()
 
     # Burp Suite'in tema ayarlarını al
     def currentTheme(self):
         # Attempt to get system theme as a workaround
         look_and_feel = UIManager.getLookAndFeel().getName()
         is_dark_theme = "dark" in look_and_feel.lower()  # Check for "dark" in the name
-        print("Current Theme (System): {}".format(look_and_feel))
+        #print("Current Theme (System): {}".format(look_and_feel))
         return is_dark_theme
 
     # ADD MESSAGE TO AI CHAT
@@ -343,13 +328,13 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             is_dark_theme = self.currentTheme()
 
             # Set colors based on the theme (consistent for user and AI)
-            background_color = "yellow" if is_dark_theme else "#eeeeee" 
+            background_color = "#444343" if is_dark_theme else "#eeeeee" 
             text_color = "white" if is_dark_theme else "black"
-            align = "center" if is_user else "left"  # Align user messages to the center 
+            align = "right" if is_user else "left"  # Align user messages to the center 
 
             # Create the HTML message with the dynamic colors
             html_message = """
-            <div style='background: {}; padding: 5px; border-radius: 10px; text-align: {}; max-width: 300px; word-wrap: break-word;'>
+            <div style='background: {}; padding: 5px; text-align: {}; max-width: 300px; word-wrap: break-word;'>
             <span style='color: {}; overflow-wrap: break-word; word-break: break-all;'>{}</span></div>
             """.format(
                 background_color,
