@@ -104,7 +104,7 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         bottom_panel = JPanel(FlowLayout(FlowLayout.CENTER, 10, 10))
         prompt_input_panel = JPanel(FlowLayout(FlowLayout.LEFT, 10, 0))
 
-        self.prompt_input = JTextField("", 20)
+        self.prompt_input = JTextField("", 35)
         self.prompt_input.setPreferredSize(Dimension(130, 30))
 
         prompt_input_panel.add(self.prompt_input)
@@ -305,6 +305,32 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
         )
 
         initial_prompt = """
+Carefully examine the following HTTP request and response:
+Analyze this request and response to determine if any security vulnerabilities are present. Follow the steps below:
+1. **Identify Input Points:** Identify all input points within the request (parameters, headers, body data, etc.) that originate from the user.
+2. **Examine Vulnerability Types:** Analyze each input point for the following types of vulnerabilities:
+   - **XSS (Cross-Site Scripting):** Check if the input points are properly sanitized. Identify test payloads for potential XSS attacks.
+   - **SQL Injection:** Inspect parameters that might be used in database queries for SQL injection risks. Identify test payloads for potential SQL Injection.
+   - **CSRF (Cross-Site Request Forgery):** Determine if the requests are protected against CSRF attacks. Specify methods and payloads to test for CSRF.
+   - **IDOR (Insecure Direct Object References):** Examine requests for object references that lack proper authorization checks. Identify payloads for IDOR testing.
+   - **Command Injection:** Assess the risk of command injection in server-side commands or scripts. Specify test payloads for potential Command Injection.
+   - **File Upload/Download Vulnerabilities:** If the request involves file upload or download, check for security measures and potential file handling vulnerabilities.
+   - **Other Vulnerability Types:** Examine other potential vulnerability types (e.g., security misconfigurations, information disclosure, etc.) and specify appropriate testing methods.
+3. **Technology Detection:** Identify the technologies used by the application based on request and response data:
+   - **Web Server and Frameworks:** Analyze headers and other metadata to identify the web server (e.g., Apache, Nginx) and server-side frameworks (e.g., Django, Ruby on Rails).
+   - **Programming Languages and Libraries:** Infer the programming languages (e.g., PHP, Python) or libraries based on the response structure or content.
+   - **Content Management Systems (CMS) or Platforms:** Detect if a CMS or specific platform (e.g., WordPress, Joomla) is in use.
+   - **Frontend Technologies:** Identify frontend technologies (e.g., Angular, React) based on response content or request patterns.
+4. **Response Analysis:** Analyze the HTTP response:
+   - **Potential Vulnerabilities in the Response:** Is there any sensitive data leakage, insecure error messages, or other signs of vulnerabilities in the response?
+   - **Request-Response Relationship:** Examine the relationship between the request and response. Does the response expose any security weaknesses related to the request?
+6. **Findings and Recommendations:**
+   - Specify the input points associated with each identified vulnerability.
+   - List the potential vulnerability type and appropriate test payloads.
+   - Explain how the vulnerability could be exploited and the potential consequences.
+   - Provide recommendations to mitigate or address the vulnerability.
+7. **Technology-Specific Recommendations:** Based on the detected technologies, provide any additional recommendations or considerations specific to those technologies.
+show the results only for possaible vulnerabilities. Do not show results for each vulnerability type.
         """
 
         # Create and start a new thread for the AI communication
@@ -330,11 +356,11 @@ class BurpExtender(IBurpExtender, ITab, IContextMenuFactory):
             # Set colors based on the theme (consistent for user and AI)
             background_color = "#444343" if is_dark_theme else "#eeeeee" 
             text_color = "white" if is_dark_theme else "black"
-            align = "right" if is_user else "left"  # Align user messages to the center 
+            align = "left" if is_user else "left"  # Align user messages to the center 
 
             # Create the HTML message with the dynamic colors
             html_message = """
-            <div style='background: {}; padding: 5px; text-align: {}; max-width: 300px; word-wrap: break-word;'>
+            <div style='background: {}; padding: 6px; margin: 5px; text-align: {}; max-width: 250px; word-wrap: break-word;'>
             <span style='color: {}; overflow-wrap: break-word; word-break: break-all;'>{}</span></div>
             """.format(
                 background_color,
