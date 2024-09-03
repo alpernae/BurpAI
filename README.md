@@ -1,23 +1,26 @@
-
 # BurpAI: AI-Powered Web Security Assistant
 
 BurpAI is a powerful Burp Suite extension that leverages artificial intelligence to elevate your web security testing workflow. Featuring an interactive chat interface, BurpAI allows you to engage with an AI model for advanced analysis and tailored assistance directly within Burp Suite. Additionally, BurpAI supports a flexible plugin system, enabling users to choose and run specialized plugins, further enhancing its capabilities to meet your unique testing needs.
 
 ![Logo](https://github.com/alpernae/BurpAI/blob/main/assets/BURPAI_LOGO.png)
 
+## Contents
+
+- [Key Features](#key-features)
+- [FAQ](#faq)
+- [BurpAI Roadmap](#burpai-roadmap)
+- [Known Issues](#known-issues)
+- [Installation](#installation)
+- [Feedback](#feedback)
+- [License](#license)
 
 ## Key Features
 
 - **Interactive Chat**: Engage in a chat-like conversation with an AI model within Burp Suite to gain insights, generate payloads, and receive security advice.
-
 - **Plugin Selection**: Choose from a variety of plugins or AI models to tailor your security testing to specific needs. Analyze different web application vulnerabilities, such as XSS, SQL injection, and more. (COMING SOON!)
-
 - **Request/Response Analysis**: Analyze specific web requests and responses to identify potential security issues. The AI model can pinpoint common vulnerabilities, suggest potential exploits, and provide insights into the application's security posture.
-
 - **Payload Generation**: Ask the AI model to generate payloads for various vulnerabilities, including XSS, SQL injection, and command injection. Automate the testing process and increase efficiency.
-
 - **Security Advice**: Receive security advice and recommendations based on the analysis of web requests, responses, and the application's overall security posture. Identify and mitigate potential risks.
-
 
 ## FAQ
 
@@ -67,6 +70,17 @@ BurpAI is a powerful Burp Suite extension that leverages artificial intelligence
 - Collect user feedback on new features.
 - Continuously improve and expand functionality based on real-world usage and requirements.
 
+## Known Issues
+
+**Dynamic Theme Updates:** Currently, the extension does not automatically update the chat message colors when the Burp Suite theme is changed. This is due to limitations in the Burp Suite Extension API, which does not provide a way to listen for theme change events.
+
+**Workaround:** 
+
+To update the message colors after changing the Burp Suite theme, you can manually refresh the chat display. This can be done by:
+
+1. **Restarting the extension:** This will reload the extension and apply the current theme colors.
+
+This issue will be addressed in future updates as potential workarounds are explored.
 
 ## Installation
 
@@ -76,8 +90,6 @@ BurpAI is a powerful Burp Suite extension that leverages artificial intelligence
 * **Python 2:**  Download and install a compatible version of Python 2 if it's not already on your system.
 * **Pip:**  A package installer for Python, usually installed along with Python. If you don't have it, you can get it from [https://pip.pypa.io/en/stable/installation/](https://pip.pypa.io/en/stable/installation/)
 * **Jython:** Burp Suite uses Jython for its Python extensions. Download and install a compatible version from the [Jython website](https://www.jython.org/download.html). 
-
-
 
 1. **Download BurpAI:**
    - Download the latest release of BurpAI from the [GitHub repository](https://github.com/alpernae/BurpAI).
