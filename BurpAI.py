@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Author: ALPEREN ERGEL (@alpernae)
-# v0.7 (UI Fix)
+# v0.8 
 
 import os
 import json
