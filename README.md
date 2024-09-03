@@ -25,7 +25,7 @@ BurpAI is a powerful Burp Suite extension that leverages artificial intelligence
 ## FAQ
 
 <details>
-  <summary>Can I use BurpAI with the Pro version of Burp Suite?</summary>
+  <summary>Can I use BurpAI with the Free version of Burp Suite?</summary>
   
   Yes, **BurpAI** is fully compatible with both the Community and Pro versions of Burp Suite. You can take advantage of all the features of BurpAI regardless of which version of Burp Suite you are using.
 </details>
